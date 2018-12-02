@@ -4,26 +4,12 @@ module.exports = async function (context, myTimer) {
     if (myTimer.isPastDue) {
         context.log('JavaScript is running late!');
     }
-    const getDataofAVehicle = async (vehicleId) => {
-        const possible_queries = ['location']
-        const axios = require('axios')
-        context.log(vehicleId)
 
-
-        try {
-            return Promise.all(possible_queries.map((x) => axios.get(`${URLS.lambdaurl}/MercedesRequest?query_type=${x}&vehicle_id=${vehicleId}`)))
-            return res.data
-
-        } catch (er) {
-
-            return {}
-        }
-
-    }
     try {
         const res = await getMovingVehicle()
         const all = await Promise.all(res.map(x => getDataofAVehicle(x.drivers.driverTrucksBydriverId[0].vehicle_id)))
         context.log('JavaScript timer trigger function ran!', timeStamp, res[0].drivers.driverTrucksBydriverId[0].vehicle_id);
+        await Promise.all(issueToGraphQL.map(all))
     } catch {
         context.log("Fail")
     }
@@ -57,13 +43,30 @@ const getMovingVehicle = async () => {
 const issueToGraphQL = async (obj) => {
     const axios = require('axios');
     try {
-        return
+        await axios.post(URLS.graphql, {
+            data: obj
+        })
+        return 1
 
     } catch {
-        return
+        return 0
     }
 }
+const getDataofAVehicle = async (vehicleId) => {
+    const possible_queries = ['location', 'tires', 'odometer', 'fuel']
+    const axios = require('axios')
 
+
+    try {
+        return Promise.all(possible_queries.map((x) => axios.get(`${URLS.lambdaurl}/MercedesRequest?query_type=${x}&vehicle_id=${vehicleId}`)))
+
+
+    } catch (er) {
+
+        return {}
+    }
+
+}
 
 const URLS = {
     graphql: 'https://gpgsql.herokuapp.com/v1alpha1/graphql',
