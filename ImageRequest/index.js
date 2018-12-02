@@ -10,11 +10,13 @@ module.exports = async function (context, req) {
         }
         return
     }
-    if (req.query.image_id && helpers.isNumber(req.query.image_id)) {
+
+    if (req.query.id && helpers.isNumber(req.query.id)) {
 
 
         try {
-            const res = await imageFetch.getImages(req.query.image_type, req.query.image_id)
+            const res = await imageFetch.getImages(req.query.image_type, req.query.id)
+            console.log('sorunnn',res)
             context.res = {
                 status: 200,
                 body: JSON.stringify(res)
@@ -30,7 +32,7 @@ module.exports = async function (context, req) {
     } else {
         context.res = {
             status: 404,
-            body: JSON.stringify('Image id should be specified!Î')
+            body: JSON.stringify('Image id should be specified!')
         }
 
     }
