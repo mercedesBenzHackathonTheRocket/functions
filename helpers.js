@@ -1,0 +1,1 @@
+module.exports = {isNumber: x => !isNaN(x) && isFinite(x)}
